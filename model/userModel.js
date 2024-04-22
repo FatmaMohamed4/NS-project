@@ -4,9 +4,11 @@ const bcrypt=require('bcryptjs')
 const crypto =require('crypto')
 const generateOTP=require('otp-generator');
 const { type } = require('os');
+
+
 const userSchema = new mongoose.Schema ({
    fName :{
-     type:String,
+     type:String, 
      minlength:[3,"fname at least have 8 letters"],
      maxlength:[20,"fname maxiumum have 20 letters"],
      trim:true,
@@ -44,6 +46,7 @@ const userSchema = new mongoose.Schema ({
     default: false ,
   
    },
+
    otp:{
     type:String
    },

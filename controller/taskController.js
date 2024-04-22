@@ -23,7 +23,7 @@ exports.addTask =async (req,res)=>{
 
 exports.getTasks =async (req,res) =>{
     try{
-     const tasks = await Task.find({ user: req.user.token});
+     const tasks = await Task.find();
       res.status(201).json({
         status:true,
         message:"Tasks",

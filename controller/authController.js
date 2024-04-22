@@ -41,7 +41,7 @@ exports.logIn = async (req, res) => {
             //token 
             //using jsonWebToken 
             // used to create authrization for each user 
-            //each user can only add to his card only 
+            //each user can only add/delete /update/get his tasks  
 
             
             let token = jwt.sign({ userId: user._id }, 'E-commerce App# first App',{expiresIn:"90d"});  
@@ -126,7 +126,8 @@ exports.forgotPassword =async(req, res)=> {
 
     res.status(200).json({
         status:true,
-        meesage:"otp generated and send to your email"
+        meesage:"otp generated and send to your email" ,
+        otp:otp
     })
 }catch(err){
     res.status(401).json({
@@ -146,6 +147,7 @@ exports.verifyOTP=async(req,res)=>{
                 message:"Otp is n't valid"
             })
         }
+
         const token = jwt.sign({ userId: user._id }, 'E-commerce App# first App',{expiresIn:"90d"});  
         res.status(200).json({
             status:true,
@@ -164,8 +166,8 @@ exports.resetPassword = async (req, res) => {
       const user =req.user;
       user.password=req.body.password
       user.confirmPassword=req.body.confirmPassword
-      user.otp=undefined,
-      user.otpExpires=undefined
+      user.otp=undefined ; 
+      user.otpExpires=undefined ;
       user.save({validateBeforeSave:true})
       res.status(200).json({
         status:true,
@@ -179,7 +181,7 @@ exports.resetPassword = async (req, res) => {
 
 exports.getAllUsers = async (req,res)=>{
     try{
-   const users = await User.findOne()
+   const users = await User.find()
    if(!users){
     res.status(404).json ({
         msg :"Users not found" ,
