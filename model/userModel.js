@@ -14,12 +14,7 @@ const userSchema = new mongoose.Schema ({
      trim:true,
      required :[true,"U must enter yoru first name"] 
    } ,
-  //  lName :{
-  //   type:String,
-  //   minlength:[3,"lname at least have 8 letters"],
-  //    maxlength:[20,"lname maxiumum have 20 letters"],
-  //   required :[true,"U must enter yoru last name"] 
-  //  } ,
+
    email :{
     type:String,
     validate:[validator.isEmail,"This not a valid Email"],
