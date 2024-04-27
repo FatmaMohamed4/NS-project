@@ -1,9 +1,12 @@
 const jwt  = require('jsonwebtoken');
+const session = require('express-session')
 const User=require('../model/userModel');
 const {promisify} =require ('util')
 const crypto =require('crypto');
+const { sendToEmail } = require('../utilities/Email.js');
 
-const {sendToEmail } = require('../utilities/OTP/Email.js');
+// const {sendToEmail} = require('../utilities/OTP/Email.js');
+
 
 
 
@@ -31,31 +34,31 @@ exports.logIn = async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email: email });
-        //
-            if (!user || !await user.correctPassword(password, user.password)) {
-                return res.status(401).json ({
-                    status:false,
-                    message :"Invaled email or password"
-                })
-            } 
-            //token 
-            //using jsonWebToken 
-            // used to create authrization for each user 
-            //each user can only add/delete /update/get his tasks  
 
-            
-            let token = jwt.sign({ userId: user._id }, 'E-commerce App# first App',{expiresIn:"90d"});  
-                      //add token for user by his id    //secret key               //valid time
-
-
-
-            res.status(200).json({
-                status: true,
-                message: "Log in Successfully",
-                token: token,
+        if (!user || !await user.correctPassword(password, user.password)) {
+            return res.status(401).json({
+                status: false,
+                message: "Invalid email or password"
             });
-        
-    
+        } 
+
+        // Set the session flag to true since the user is authenticated
+        req.session.authenticated = true;
+        req.session.user = user;
+        req.session.userId = user._id;
+
+        // console.log(req.session)
+        // Now you can proceed to generate token and send response
+        let token = jwt.sign({ userId: user._id }, 'E-commerce App# first App', { expiresIn: "90d" });
+
+        res.status(200).json({
+            status: true,
+            message: "Log in Successfully",
+            token: token,
+            
+        });
+
+        console.log(session)
     } catch (err) {
         res.status(401).json({
             status: false,
@@ -64,7 +67,6 @@ exports.logIn = async (req, res) => {
         console.log(err);
     }
 };
-
 
 exports.protect= async(req,res,next) =>{
 //token from user 
@@ -126,8 +128,7 @@ exports.forgotPassword =async(req, res)=> {
 
     res.status(200).json({
         status:true,
-        meesage:"otp generated and send to your email" ,
-        otp:otp
+        meesage:"otp generated and send to your email"
     })
 }catch(err){
     res.status(401).json({
@@ -200,3 +201,21 @@ exports.getAllUsers = async (req,res)=>{
         })
     }
 }
+
+exports.logOut = (req, res) => {
+    try {
+        // Destroy the session
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Error destroying session:', err);
+                return res.status(500).json({ message: 'Internal server error' });
+            }
+            // Redirect or send a response indicating successful logout
+            res.status(200).json({ status: true, message: 'Logged out successfully'});
+            console.log(req.session)
+        });
+    } catch (error) {
+        console.error('Error in logOut:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};

@@ -11,6 +11,7 @@ router.post('/login',authController.logIn)
 router.post('/sendCode', authController.forgotPassword);
 router.post('/verify',authController.verifyOTP)
 router.patch('/reset',authController.protect,authController.resetPassword)
+router.get('/logout', authController.logOut);
 
 //for Admins only 
 router.get('/all',

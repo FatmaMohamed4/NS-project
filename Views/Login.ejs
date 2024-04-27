@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <!-- Link to your CSS file -->
+  </head>
+  <body>
+    <div class="wrapper">
+      <h2>Login</h2>
+      <form id="login-form">
+        <div class="input-box">
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+        <div class="input-box">
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        <div class="input-box button">
+          <button type="submit">Login</button>
+        </div>
+        <div class="text">
+          <h3>Don't have an account? <a href="/">Sign Up now</a></h3>
+          <h3>
+            Forgot your password? <a href="/forgetpassword">Reset it here</a>
+          </h3>
+          <!-- Link to the forgot password page -->
+        </div>
+      </form>
+    </div>
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> -->
+    <script>
+      const form = document.getElementById("login-form");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await fetch("http://localhost:3000/users/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to login");
+          }
+
+          const responseData = await response.json();
+          console.log("Login response:", responseData);
+
+          if (responseData && responseData.status === true) {
+            // Store token and user data in sessionStorage
+            sessionStorage.setItem("token", responseData.token);
+            // Redirect to tasks page or home page or any other page as needed
+            window.location.href = "/tasks"; // Example: Redirect to tasks page
+          } else {
+            alert("Invalid email or password");
+          }
+        } catch (error) {
+          console.error(error);
+          alert("An error occurred. Please try again later.");
+        }
+      });
+    </script>
+  </body>
+</html>

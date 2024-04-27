@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <!-- Link to your CSS file -->
+  </head>
+  <body>
+    <div class="wrapper">
+      <h2>Registration</h2>
+      <form id="signup-form">
+        <div class="input-box">
+          <input
+            type="text"
+            id="fName"
+            placeholder="Enter your name"
+            required
+          />
+        </div>
+        <div class="input-box">
+          <input
+            type="text"
+            id="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+        <div class="input-box">
+          <input
+            type="password"
+            id="password"
+            placeholder="Create password"
+            required
+          />
+        </div>
+        <div class="input-box">
+          <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm password"
+            required
+          />
+        </div>
+        <div class="input-box button">
+          <button type="submit">Register Now</button>
+        </div>
+        <div class="text">
+          <h3>Already have an account? <a href="/login">Login now</a></h3>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const form = document.getElementById("signup-form");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const fName = document.getElementById("fName").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+
+        try {
+          const response = await fetch("http://localhost:3000/users/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              fName,
+              email,
+              password,
+              confirmPassword,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to register");
+          }
+
+          console.log("Registration successful");
+          // Display alert message for successful registration
+          alert("Registration successful!");
+          // Handle successful signup, e.g., redirect to a new page
+        } catch (error) {
+          console.error("Registration failed:", error);
+          // Handle signup error, e.g., display error message to the user
+          alert("Registration failed. Please try again.");
+        }
+      });
+    </script>
+  </body>
+</html>

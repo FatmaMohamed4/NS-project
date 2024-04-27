@@ -1,0 +1,27 @@
+const nodemailer = require('nodemailer');
+
+exports.sendToEmail=(email, otp) =>{
+    const transporter = nodemailer.createTransport({
+        service: 'Gmail', 
+        auth: {
+            user: 'mail1project1@gmail.com', 
+            pass: 'dedbgjcvpeimmrwl'
+        }
+    });
+
+    // Email content
+    const mailOptions = {
+        from: 'To-do App', 
+        to: email, 
+        subject: 'Your Reset Code  (OTP)', 
+        text: `Your OTP is: ${otp}` 
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Error occurred while sending email:', error);
+        } else {
+            console.log('Email sent:', info.response);
+        }
+    });
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tasks</title>
+    <link rel="stylesheet" type="text/css" href="/tasks.css" />
+    <style>
+      .completed {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="container">
+        <div class="todo-app">
+          <h2>To-Do List <img src="./images/icon.png" alt="" /></h2>
+          <div class="row">
+            <input
+              class="task"
+              type="text"
+              id="input-box"
+              placeholder="Add your task"
+            />
+            <button class="addbtn" onclick="AddTask()">Add</button>
+          </div>
+          <ul id="list-container">
+            <!-- Task items will be dynamically added here -->
+          </ul>
+          <button class="log" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Function to fetch all tasks
+      async function fetchTasks() {
+        const token = sessionStorage.getItem("token"); // Retrieve token from sessionStorage
+        if (!token) {
+          // Redirect to login page if token is not found
+          window.location.href = "/login";
+          return;
+        }
+
+        try {
+          // Include JWT token in the request headers
+          const response = await fetch("http://localhost:3000/tasks/all", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch tasks");
+          }
+
+          const data = await response.json();
+
+          // Extract tasks from the data
+          const tasks = data.tasks;
+
+          // Display tasks in the HTML
+          const listContainer = document.getElementById("list-container");
+          listContainer.innerHTML = ""; // Clear previous tasks
+
+          tasks.forEach((task) => {
+            const listItem = document.createElement("li");
+            listItem.textContent = task.title;
+            if (task.isComplete) {
+              listItem.classList.add("completed"); // Add completed class if task is already completed
+            }
+            listItem.addEventListener("click", () =>
+              markTaskAsComplete(task._id)
+            ); // Add click event listener
+            listContainer.appendChild(listItem);
+          });
+        } catch (error) {
+          console.error(error);
+          alert("Failed to fetch tasks");
+        }
+      }
+
+      // Call fetchTasks function when the page loads
+      window.onload = fetchTasks;
+
+      // Function to handle logout
+      function logout() {
+        sessionStorage.removeItem("token"); // Remove token from sessionStorage
+        sessionStorage.removeItem("username"); // Remove username from sessionStorage
+        sessionStorage.removeItem("userid"); // Remove userid from sessionStorage
+        window.location.href = "/login"; // Redirect to login page
+      }
+
+      // Function to add a new task
+      async function AddTask() {
+        const token = sessionStorage.getItem("token"); // Retrieve token from sessionStorage
+        const inputBox = document.getElementById("input-box");
+        const taskTitle = inputBox.value.trim();
+
+        try {
+          const response = await fetch("http://localhost:3000/tasks/add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ title: taskTitle }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to add task");
+          }
+
+          const data = await response.json();
+          console.log("Task added:", data);
+
+          // Clear input box after adding task
+          inputBox.value = "";
+
+          // Fetch tasks again to update the list
+          fetchTasks();
+        } catch (error) {
+          console.error(error);
+          alert("Failed to add task");
+        }
+      }
+
+      // Function to mark a task as complete
+      async function markTaskAsComplete(taskId) {
+        const token = sessionStorage.getItem("token"); // Retrieve token from sessionStorage
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/tasks/${taskId}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ isComplete: true }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to mark task as complete");
+          }
+
+          const data = await response.json();
+          console.log("Task marked as complete:", data);
+
+          // Fetch tasks again to update the list
+          fetchTasks();
+        } catch (error) {
+          console.error(error);
+          alert("Failed to mark task as complete");
+        }
+      }
+    </script>
+  </body>
+</html>
